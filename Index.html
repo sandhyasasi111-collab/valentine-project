@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For My Favorite Person</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: #fff0f3;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            color: #ff4d6d;
+            overflow: hidden; 
+        }
+
+        .heart-bg-elem {
+            position: absolute;
+            color: #ffb3c1;
+            font-size: 20px;
+            user-select: none;
+            z-index: 1;
+            animation: floatBackground 6s linear infinite;
+        }
+
+        @keyframes floatBackground {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Enhanced Floating Emoji Burst */
+        .floating-emoji {
+            position: fixed;
+            font-size: 2.5rem;
+            pointer-events: none;
+            z-index: 5000;
+            animation: burstAndFade 1.5s ease-out forwards;
+        }
+
+        @keyframes burstAndFade {
+            0% { 
+                transform: translate(0, 0) scale(0.5); 
+                opacity: 1; 
+            }
+            100% { 
+                transform: translate(var(--x-move), var(--y-move)) scale(1.5) rotate(var(--rot)); 
+                opacity: 0; 
+            }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(255, 77, 109, 0.2);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            z-index: 10;
+            backdrop-filter: blur(5px);
+            position: relative;
+        }
+
+        button {
+            background-color: #ff4d6d;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            margin: 10px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        button:hover { background-color: #c9184a; transform: translateY(-3px); }
+
+        input { padding: 12px; border-radius: 15px; border: 2px solid #ffb3c1; width: 80%; margin-bottom: 10px; outline: none; }
+
+        .hidden { display: none !important; }
+
+        #custom-dialog {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(255, 77, 109, 0.4);
+            z-index: 6000;
+            text-align: center;
+            width: 85%;
+            max-width: 350px;
+            border: 2px solid #ff4d6d;
+        }
+
+        #dialog-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            z-index: 5999;
+        }
+
+        #btn-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 20px;
+            height: 200px;
+            position: relative;
+        }
+
+        #no-btn {
+            background-color: #adb5bd;
+            transition: all 0.2s ease-out;
+            position: relative;
+            z-index: 100;
+        }
+
+        #couple-photo {
+            width: 250px;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 20px;
+            border: 6px solid #ff4d6d;
+            margin-bottom: 10px;
+        }
+
+        #poem-box {
+            text-align: left; background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 15px; 
+            font-family: 'Courier New', Courier, monospace; font-size: 0.8rem; border-left: 5px solid #ff4d6d; margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="heart-bg"></div>
+
+    <div id="dialog-overlay" class="hidden"></div>
+    <div id="custom-dialog" class="hidden">
+        <h3 style="margin-top:0;">⚠️ Access Denied</h3>
+        <p>git commit -m "Merged 'MyHeart' into 'HisWorld' --no-ff"</p>
+        <button onclick="closeDialog()">Understood</button>
+    </div>
+
+    <div id="quiz-container" class="card">
+        <h2 id="question-text">Ready for a surprise?</h2>
+        <div id="options-container">
+            <button onclick="startQuiz()">Start Quiz</button>
+        </div>
+        <p id="score-board" class="hidden">Score: 0</p>
+    </div>
+
+    <div id="travel-container" class="card hidden">
+        <div id="travel-content">
+            <h2>Our next travel destination?</h2>
+            <input type="text" id="travel-input" placeholder="Dreamy place name...">
+            <br>
+            <button id="travel-submit">Submit</button>
+        </div>
+        <h3 id="plan-response" class="hidden">Noted, destination locked! ❤️</h3>
+    </div>
+
+    <div id="final-ask" class="card hidden">
+        <h2>Will you be my Valentine forever?</h2>
+        <div id="btn-area">
+            <button id="yes-btn">Yes</button>
+            <button id="no-btn">No</button>
+        </div>
+    </div>
+
+    <div id="success-screen" class="card hidden">
+        <img src="us.jpg" id="couple-photo" alt="Us">
+        <h2 style="margin: 5px 0;">Build Successful! ❤️</h2>
+<div id="poem-box">
+    <pre style="margin: 0;"><span style="color: #75715e;">// Project: Eternal Love
+// Status: Build Successful
+// Priority: High</span>
+
+<span style="color: #66d9ef;">while</span> (<span style="color: #ae81ff;">true</span>) {
+    <span style="color: #75715e;">// No more bugs to find, no more tests to run</span>
+    <span style="color: #66d9ef;">bool</span> lifeWon = <span style="color: #ae81ff;">true</span>; 
+
+    <span style="color: #75715e;">// You are the logic that makes my world make sense</span>
+    <span style="color: #66d9ef;">auto</span> myValentine = <span style="color: #e6db74;">"You"</span>;
+
+    <span style="color: #75715e;">// You're the header file to my source code
+    // The try block that catches all my stress</span>
+    <span style="color: #66d9ef;">if</span> (day == <span style="color: #e6db74;">"Difficult"</span>) {
+        std::cout &lt;&lt; <span style="color: #e6db74;">"Holding you..."</span>;
+    }
+
+    <span style="color: #75715e;">// My favorite partner, in every single tense
+    // Memory allocated forever; no delete needed</span>
+    std::cout &lt;&lt; <span style="color: #e6db74;">"I love you forever."</span> &lt;&lt; std::endl;
+}</pre>
+</div>
+        <p style="font-weight: bold; margin-top: 10px;">Happy Valentine's Day!</p>
+    </div>
+
+    <script>
+        // --- 1. Background ---
+        function createHearts() {
+            const container = document.getElementById('heart-bg');
+            for (let i = 0; i < 20; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart-bg-elem';
+                heart.innerHTML = '❤️';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(heart);
+            }
+        }
+        createHearts();
+
+        // --- 2. Floating Emoji Burst Logic ---
+        function showEmojiBurst(emoji, startX, startY) {
+            for (let i = 0; i < 8; i++) {
+                const el = document.createElement('div');
+                el.className = 'floating-emoji';
+                el.innerHTML = emoji;
+                
+                // Randomize trajectories for a "burst" effect
+                const xMove = (Math.random() - 0.5) * 300 + 'px';
+                const yMove = - (Math.random() * 200 + 100) + 'px';
+                const rotation = (Math.random() * 360) + 'deg';
+                
+                el.style.setProperty('--x-move', xMove);
+                el.style.setProperty('--y-move', yMove);
+                el.style.setProperty('--rot', rotation);
+                
+                el.style.left = startX + 'px';
+                el.style.top = startY + 'px';
+                
+                document.body.appendChild(el);
+                setTimeout(() => el.remove(), 1500);
+            }
+        }
+
+        // --- 3. Quiz Logic ---
+        const questions = [
+            { q: "Who said 'I Love You' first?", options: ["Me", "You", "Both at once"], correct: "Me" },
+            { q: "My favourite cartoon?", options: ["Shinchan", "Mayakannan", "Tom and Jerry", "Mr.Bean"], correct: "Shinchan" }, 
+            { q: "What is our favorite type of travel destination?", options: ["Hillstations", "Beach", "Trekking"], correct: "Beach" },
+            { q: "My favourite colour?", options: ["Blue", "Black", "Brown", "Red"], correct: "Blue" },
+            { q: "First official communication platform was?", options: ["Matrimony", "LinkedIn", "Facebook", "Instagram"], correct: "LinkedIn" }
+        ];
+
+        let currentQ = 0;
+        let score = 0;
+
+        function startQuiz() {
+            document.getElementById('score-board').classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentQ < questions.length) {
+                document.getElementById('question-text').innerText = questions[currentQ].q;
+                const optionsDiv = document.getElementById('options-container');
+                optionsDiv.innerHTML = '';
+                questions[currentQ].options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.innerText = opt;
+                    btn.onclick = (e) => checkAnswer(opt, e.target, e.clientX, e.clientY);
+                    optionsDiv.appendChild(btn);
+                });
+            } else {
+                document.getElementById('quiz-container').classList.add('hidden');
+                document.getElementById('travel-container').classList.remove('hidden');
+            }
+        }
+
+        function checkAnswer(selectedOpt, btnElement, mouseX, mouseY) {
+            const currentQuestion = questions[currentQ];
+            const allButtons = document.querySelectorAll('#options-container button');
+            allButtons.forEach(btn => btn.style.pointerEvents = 'none');
+
+            if (selectedOpt === currentQuestion.correct) {
+                score++;
+                btnElement.style.backgroundColor = "#2ecc71";
+                showEmojiBurst('❤️', mouseX, mouseY);
+                document.getElementById('score-board').innerText = "Score: " + score + " / " + questions.length;
+            } else {
+                btnElement.style.backgroundColor = "#e74c3c";
+                showEmojiBurst('👊', mouseX, mouseY); 
+                allButtons.forEach(btn => {
+                    if (btn.innerText === currentQuestion.correct) btn.style.backgroundColor = "#2ecc71";
+                });
+            }
+
+            // Increased wait time to 1.5 seconds so he can see the burst
+            setTimeout(() => {
+                currentQ++;
+                loadQuestion();
+            }, 1500);
+        }
+
+        // --- 4. Travel & No Button ---
+        document.getElementById('travel-submit').onclick = () => {
+            if (document.getElementById('travel-input').value.trim() !== "") {
+                document.getElementById('travel-content').classList.add('hidden');
+                document.getElementById('plan-response').classList.remove('hidden');
+                setTimeout(() => {
+                    document.getElementById('travel-container').classList.add('hidden');
+                    document.getElementById('final-ask').classList.remove('hidden');
+                }, 2000);
+            }
+        };
+
+        const noBtn = document.getElementById('no-btn');
+        const btnArea = document.getElementById('btn-area');
+        let moveCount = 0;
+
+        function showDialog() {
+            document.getElementById('dialog-overlay').classList.remove('hidden');
+            document.getElementById('custom-dialog').classList.remove('hidden');
+        }
+
+        function closeDialog() {
+            document.getElementById('dialog-overlay').classList.add('hidden');
+            document.getElementById('custom-dialog').classList.add('hidden');
+            noBtn.style.display = 'none'; 
+        }
+
+        const handleNoInteraction = (e) => {
+            moveCount++;
+            if (moveCount >= 5) {
+                showDialog();
+            } else {
+                noBtn.style.position = 'absolute';
+                const maxX = btnArea.clientWidth - noBtn.clientWidth;
+                const maxY = btnArea.clientHeight - noBtn.clientHeight;
+                noBtn.style.left = Math.floor(Math.random() * maxX) + 'px';
+                noBtn.style.top = Math.floor(Math.random() * maxY) + 'px';
+            }
+        };
+
+        noBtn.addEventListener('mouseover', handleNoInteraction);
+        noBtn.addEventListener('click', handleNoInteraction);
+
+        // --- 5. Final Celebration ---
+        document.getElementById('yes-btn').onclick = () => {
+            document.getElementById('final-ask').classList.add('hidden');
+            document.getElementById('success-screen').classList.remove('hidden');
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+        };
+    </script>
+</body>
+</html>
