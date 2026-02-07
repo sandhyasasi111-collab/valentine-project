@@ -148,7 +148,7 @@
     <div id="dialog-overlay" class="hidden"></div>
     <div id="custom-dialog" class="hidden">
         <h3 style="margin-top:0;">⚠️ Access Denied</h3>
-        <p>git commit -m "Merged 'MyHeart' into 'HisWorld' --no-ff"</p>
+        <p>git commit -m "Merged 'MyHeart' into 'HisWorld' --no-ff" "The most successful merge of my life. I love you!"</p>
         <button onclick="closeDialog()">Understood</button>
     </div>
 
@@ -250,9 +250,9 @@
         const questions = [
             { q: "Who said 'I Love You' first?", options: ["Me", "You", "Both at once"], correct: "Me" },
             { q: "My favourite cartoon?", options: ["Shinchan", "Mayakannan", "Tom and Jerry", "Mr.Bean"], correct: "Shinchan" }, 
-            { q: "What is our favorite type of travel destination?", options: ["Hillstations", "Beach", "Trekking"], correct: "Beach" },
+            { q: "What is my ur favorite type of travel destination?", options: ["Hillstations", "Beach", "Trekking"], correct: "Beach" },
             { q: "My favourite colour?", options: ["Blue", "Black", "Brown", "Red"], correct: "Blue" },
-            { q: "First official communication platform was?", options: ["Matrimony", "LinkedIn", "Facebook", "Instagram"], correct: "LinkedIn" }
+            { q: "Our First official communication platform was?", options: ["Matrimony", "LinkedIn", "Facebook", "Instagram"], correct: "LinkedIn" }
         ];
 
         let currentQ = 0;
@@ -334,7 +334,7 @@
 
         const handleNoInteraction = (e) => {
             moveCount++;
-            if (moveCount >= 5) {
+            if (moveCount >= 6) {
                 showDialog();
             } else {
                 noBtn.style.position = 'absolute';
@@ -357,3 +357,4 @@
     </script>
 </body>
 </html>
+
